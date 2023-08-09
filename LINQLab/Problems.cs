@@ -35,10 +35,10 @@ namespace LINQLab
             //// <><><><><><><><> CUD (Create, Update, Delete) Actions <><><><><><><><><>
 
             //// <><> C Actions (Create) <><>
-            //CDemoOne();
-            //CProblemOne();
-            //CDemoTwo();
-            //CProblemTwo();
+            CDemoOne();
+            CProblemOne();
+            CDemoTwo();
+            CProblemTwo();
 
             //// <><> U Actions (Update) <><>
             //UDemoOne();
@@ -239,15 +239,12 @@ namespace LINQLab
             // Write a query that retrieves all of the products in the shopping cart of users who have the role of "Employee".
             // Then print the product's name, price, and quantity to the console along with the email of the user that has it in their cart.
             Console.WriteLine("\nRead Problem Eight: Retrieve all employee shopping cart products");
-            var employees = _context.UserRoles.Where(ur => ur.Role.RoleName == "Employee").Select(r => r.User);
-            foreach(User user in employees)
+            var employees = _context.UserRoles.Where(r => r.Role.RoleName == "Employee").Select(r => r.User.Id);
+            var employeeCarts = _context.ShoppingCartItems.Where(s => employees.Contains(s.User.Id));
+            foreach (ShoppingCartItem product in employeeCarts)
             {
-                Console.WriteLine($"User's Email: {user.Email}");
-                var userProducts = _context.ShoppingCartItems.Where(sc => sc.UserId == user.Id);
-                foreach(ShoppingCartItem item in userProducts)
-                {
-                    Console.WriteLine($"Product Name: {item.Product.Name}\nPrice: {item.Product.Price}\nQuantity: {item.Quantity}");
-                }
+                Console.WriteLine($"User: {product.User.Email}  Name: {product.Product.Name}  Price: {product.Product.Price}  Quantity: {product.Quantity}");
+
             }
         }
         /*
@@ -298,7 +295,26 @@ namespace LINQLab
         {
             // Create a new Product object and add that product to the Products table. Choose any name and product info you like.
             Console.WriteLine("\nCreate Problem One: Create a new product for the Products table");
-
+            var userChoice = "n";
+            Console.WriteLine("Would you like to add a new product? (y/n)");
+            userChoice = Console.ReadLine().ToLower();
+            if(userChoice == "y")
+            {
+                Console.WriteLine("Please enter product name:");
+                var productName = Console.ReadLine();
+                Console.WriteLine("Please enter product description:");
+                var productDescription = Console.ReadLine();
+                Console.WriteLine("Please enter product price as a decimal value:");
+                var productPrice = decimal.Parse(Console.ReadLine());
+                Product newProduct = new Product()
+                {
+                    Name = productName,
+                    Description = productDescription,
+                    Price = productPrice
+                };
+                _context.Products.Add(newProduct);
+                _context.SaveChanges();
+            }
 
         }
 
@@ -322,7 +338,14 @@ namespace LINQLab
             // Create a new ShoppingCartItem to represent the new product you created in CProblemOne being added to the shopping cart of the user created in CDemoOne.
             // This will add a new row to ShoppingCart junction table.
             Console.WriteLine("\nCreate Problem Two: Create a ShoppingCartItem w/ new user & product");
-
+            var newUser = _context.Users.Where(u => u.Email == "david@gmail.com").Select(u => u.Id).SingleOrDefault();
+            var newProduct = _context.Products.Where(p => p.Name == "Bebsi").Select(p => p.Id).SingleOrDefault();
+            ShoppingCartItem newSC = new ShoppingCartItem()
+            {
+                UserId = newUser,
+                ProductId = newProduct,
+                Quantity = 5
+            };
 
         }
 
